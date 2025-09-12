@@ -10,10 +10,15 @@ client = genai.Client(api_key=api_key)
 
 
 def main():
+    verbose = False
+    
     if len(sys.argv) < 2:
         print("Prompt was not provided")
         exit(code=1)
     
+    if len(sys.argv) > 2 and "--verbose" in sys.argv:
+        verbose = True
+
     query = sys.argv[1]
     messages = [
         types.Content(role="user", parts=[types.Part(text=query)])
@@ -22,13 +27,14 @@ def main():
 
 
     print("Hello from bootdev-ai-agent!")
-    print()
-    print(f"Prompt: {query}")
-    print()
-    print(response.text)
-    print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-    print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+    print("Let's chat.")
 
+    if verbose:
+        print(f"User prompt: {query}")
+        print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+        print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+    
+    print(response.text)
 
 
 if __name__ == "__main__":
