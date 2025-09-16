@@ -1,55 +1,25 @@
 import unittest
 import os
-from functions.get_file_content import get_file_content
+from functions.write_file_content import write_file
 
 class TestGetFilesInfo(unittest.TestCase):
     def setUp(self):
-        self.get_file_content = get_file_content
+        self.write_file = write_file
 
-    # def test_lorem(self):
-    #     result = self.get_file_content("calculator", "lorem.txt")
-    #     print(f'File length: {len(result)} bytes')
-    #     print(f'File Contents:')
-    #     print()
-    #     print(result)
-        
-    def test_main(self):
-        result = self. get_file_content("calculator", "main.py")
-        print()
-        print(f'File length: {len(result)} bytes')
-        print(f'File Contents:')
-        print()
+    def test_lorem(self):
+        result = self.write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
         print(result)
-        print()
 
-    def test_pkg(self):
-        result = self. get_file_content("calculator", "pkg/calculator.py")
-        print()
-        print(f'File length: {len(result)} bytes')
-        print(f'File Contents:')
-        print()
+    def test_morelorem(self):
+        result = write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
         print(result)
-        print()
 
-    def test_bin(self):
-        result = self. get_file_content("calculator", "/bin/cat")
-        print()
-        print(f'File length: {len(result)} bytes')
-        print(f'File Contents:')
-        print()
+    def test_temp(self):
+        result = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
         print(result)
-        print()
 
-    def test_does_not_exist(self):
-        result = self. get_file_content("calculator", "pkg/does_not_exist.py")
-        print()
-        print(f'File length: {len(result)} bytes')
-        print(f'File Contents:')
-        print()
-        print(result)
-        print()
-
-
+    def test_new_dir(self):
+        result = write_file("calculator", "temp/new_file.txt", "Checking that a new directory is created.")
 
 if __name__ == "__main__":
     unittest.main()
