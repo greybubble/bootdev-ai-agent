@@ -3,8 +3,8 @@ import sys
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from functions.get_files_info import schema_get_files_info
-from functions.get_files_info import available_functions
+from functions.function_schemas import *
+from functions.call_function import call_function
 
 import prompts
 
@@ -48,7 +48,11 @@ def main():
     print("Function Response:")
     if response.function_calls:
         for func in response.function_calls:
-            print(f"Calling function: {func.name}({func.args})")
+            result = call_function(func, verbose)
+            if not result.parts[0].function_response.response:
+                raise Exception("Error: Did not receive response from function call.")
+            print(f"-> {result.parts[0].function_response.response}")
+
     else:
         print("none")
 
