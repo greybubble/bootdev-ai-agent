@@ -1,25 +1,31 @@
 import unittest
 import os
-from functions.write_file_content import write_file
+from functions.run_python_file import run_python_file
 
 class TestGetFilesInfo(unittest.TestCase):
     def setUp(self):
-        self.write_file = write_file
+        self.run_python_file = run_python_file
 
-    def test_lorem(self):
-        result = self.write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
+    def test_no_args(self):
+        result = run_python_file("calculator", "main.py")
         print(result)
 
-    def test_morelorem(self):
-        result = write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
+    def test_addition(self):
+        result = run_python_file("calculator", "main.py", ["3 + 5"])
+
+    def test_tests(self):
+        result = run_python_file("calculator", "tests.py")
         print(result)
 
-    def test_temp(self):
-        result = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
+    def test_running_outside_wd(self):
+        result = run_python_file("calculator", "../main.py")
         print(result)
 
-    def test_new_dir(self):
-        result = write_file("calculator", "temp/new_file.txt", "Checking that a new directory is created.")
+    def test_nonexistent_file(self):
+        result = run_python_file("calculator", "nonexistent.py")
+        print(result)
+
+
 
 if __name__ == "__main__":
     unittest.main()
