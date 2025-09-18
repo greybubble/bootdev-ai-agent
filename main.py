@@ -20,41 +20,66 @@ def main():
         exit(code=1)
     if len(sys.argv) > 2 and "--verbose" in sys.argv:
         verbose = True
-
-    query = sys.argv[1]
     
+    query = sys.argv[1]
+
     messages = [
         types.Content(role="user", parts=[types.Part(text=query)])
     ]
+ 
+    max_iterations = 20
+    iterations = 0    
+    no_response = True
 
-    response = client.models.generate_content(
-        model="gemini-2.0-flash-001", 
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions],
-            system_instruction=system_prompt
+    while iterations < max_iterations and no_response:
+        iterations += 1
+
+        #print(f"Messages: {messages}")
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-001", 
+                contents=messages,
+                config=types.GenerateContentConfig(
+                    tools=[available_functions],
+                    system_instruction=system_prompt,
+                    
+                    )
             )
-    )
 
-    if verbose:
-        print(f"User prompt: {query}")
-        print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-        print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
-    
-    print("Text Response:")
-    print(response.text)
-    print("---------------------")
+            for candidate in response.candidates:
+                messages.append(candidate.content)
 
-    print("Function Response:")
-    if response.function_calls:
-        for func in response.function_calls:
-            result = call_function(func, verbose)
-            if not result.parts[0].function_response.response:
-                raise Exception("Error: Did not receive response from function call.")
-            print(f"-> {result.parts[0].function_response.response}")
+            if response.function_calls:
+                func_call_responses = []
+                for func in response.function_calls:
+                    result = call_function(func, verbose)
+                    if not result.parts[0].function_response.response:
+                        raise Exception("Error: Did not receive response from function call.")
+                    if verbose:
+                        print(f"-> {result.parts[0].function_response.response}")
+                        print("---------------------")
+                    
+                    func_call_responses.append(result.parts[0])
+                    
+                messages.append(types.Content(role="user", parts=func_call_responses))
 
-    else:
-        print("none")
+            else:
+
+                if response.text != None:
+                    no_response = False
+                    
+            if not no_response:
+                if verbose:
+                    print(f"User prompt: {query}")
+                    print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+                    print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+                
+                print("Text Response:")
+                print(response.text)
+        except Exception as e:
+            print(f"Error during query iteration {iterations}: {e}")
+            return f"Error during query iteration {iterations}: {e}"
+
 
 if __name__ == "__main__":
     main()
